@@ -38,7 +38,7 @@ class Application extends CI_Controller {
 
         // finally, build the browser page!
         $this->data['data'] = &$this->data;
-        $this->data['sessionid'] = session_id();
+        //$this->data['sessionid'] = session_id();
         $this->data['id'] = $this->session->userdata('userID');
         $this->data['user'] = $this->session->userdata('userName');
         $this->data['role'] = $this->session->userdata('userRole');
