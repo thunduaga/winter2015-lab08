@@ -19,21 +19,19 @@ class Auth extends Application
     
     public function submit()
     {
-        $key = $_POST['userid'];
+        $keyID = $_POST['userid'];
         
-        //
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $user = $this->users->get($key);
+        $password = $_POST['password'];
+        $user = $this->users->get($keyID);
 
-        if ($password == (string) $user->password)
+         if (password_verify($password, $user->password))
         {
-            $this->session->set_userdata('userID', $key);
+            $this->session->set_userdata('userID', $keyID);
             
             $this->session->set_userdata('userName', $user->name);
             
             $this->session->set_userdata('userRole', $user->role);
         }
-
         redirect('/');
     }
 

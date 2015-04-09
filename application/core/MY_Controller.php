@@ -19,7 +19,7 @@ class Application extends CI_Controller {
      * Establish view parameters & load common helpers
      */
 
-    function __construct() {
+    public function __construct() {
         parent::__construct();
         $this->data = array();
         $this->data['title'] = "Top Secret Government Site";    // our default title
@@ -30,16 +30,39 @@ class Application extends CI_Controller {
     /**
      * Render this page
      */
-    function render() {
+    public function render() {
         $this->data['menubar'] = $this->parser->parse('_menubar', $this->config->item('menu_choices'),true);
         $this->data['content'] = $this->parser->parse($this->data['pagebody'], $this->data, true);
 
         // finally, build the browser page!
         $this->data['data'] = &$this->data;
         $this->data['sessionid'] = session_id();
+        $this->data['id'] = $this->session->userdata('userID');
+        $this->data['user'] = $this->session->userdata('userName');
+        $this->data['role'] = $this->session->userdata('userRole');
         $this->parser->parse('_template', $this->data);
     }
 
+    public function restrict($roleNeeded = null)
+    {
+        if ($roleNeeded != null)
+        {
+            $userRole = $this->session->userdata('userRole');
+            if (is_array($roleNeeded))
+            {
+                if (!in_array($userRole, $roleNeeded))
+                {
+                    redirect('/');
+                    return;
+                }
+            }
+            else if ($userRole != $roleNeeded)
+            {
+                redirect('/');
+                return;
+            }
+        }
+    }
 }
 
 /* End of file MY_Controller.php */
