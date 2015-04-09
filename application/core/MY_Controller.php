@@ -31,7 +31,9 @@ class Application extends CI_Controller {
      * Render this page
      */
     public function render() {
-        $this->data['menubar'] = $this->parser->parse('_menubar', $this->config->item('menu_choices'),true);
+        //$this->data['menubar'] = $this->parser->parse('_menubar', $this->config->item('menu_choices'),true);
+        $this->data['menubar'] = $this->makemenu();
+
         $this->data['content'] = $this->parser->parse($this->data['pagebody'], $this->data, true);
 
         // finally, build the browser page!
@@ -63,7 +65,57 @@ class Application extends CI_Controller {
             }
         }
     }
-}
+     /**
+ * Genereates the menu according to the user's login status and role.
+ */
+    public function makemenu()
+    {
+        // Get the user's name and role.
+        $userName = $this->session->userdata('userName');
+        $userRole = $this->session->userdata('userRole');
 
-/* End of file MY_Controller.php */
-/* Location: application/core/MY_Controller.php */
+        $menubar = array('menudata' => array());
+        $choices = array();
+
+        // Accessible for everyone.
+        $choices[] = 'Alpha';
+
+        if ($userName == null)
+        {
+            // Show login option if not logged in.
+            $choices[] = 'Login';
+            $menubar['status'] = "You are not logged in.";
+        }
+        else
+        {
+            // Show logout option if logged in.
+            $choices[] = 'Logout';
+            $menubar['status'] = "You are logged in as $userName.";
+
+            switch ($userRole)
+            {
+                case ROLE_ADMIN:
+                // Logged in as admin.
+                $choices[] = 'Gamma';
+                // Fall through.
+
+                case ROLE_USER:
+                // Logged in as user.
+                $choices[] = 'Beta';
+                break;
+            }
+        }
+
+
+        // Create menudata from available choices.
+        foreach ($this->config->item('menu_choices') as $choice)
+        {
+            if (in_array($choice['name'], $choices))
+            {
+                $menubar['menudata'][] = $choice;
+            }
+        }
+
+        return $this->parser->parse('_menubar', $menubar, true);
+    }
+}
